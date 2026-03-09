@@ -3,7 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
+    <title>Shubham Limbachiya | AI Developer</title>
+    <script>
+      // Silent fix for "Cannot set property fetch" error
+      (function() {
+        try {
+          const originalFetch = window.fetch;
+          Object.defineProperty(window, 'fetch', {
+            get: function() { return originalFetch; },
+            set: function(v) { /* Silent block */ },
+            configurable: true,
+            enumerable: true
+          });
+        } catch (e) {
+          // Already read-only, browser will handle it
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

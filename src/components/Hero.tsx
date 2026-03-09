@@ -86,27 +86,16 @@ export const Hero = ({ data }: { data: any }) => {
             <ChevronDown className="h-4 w-4 transition-transform group-hover:translate-y-1" />
           </button>
           
-          <button className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-8 py-4 font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/10 active:scale-95">
+          <a 
+            href="/Resume_Shubham_Limbachiya.pdf" 
+            download="Resume_Shubham_Limbachiya.pdf"
+            className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-8 py-4 font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/10 active:scale-95"
+          >
             Download Resume
             <Download className="h-4 w-4" />
-          </button>
+          </a>
         </motion.div>
       </div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1, delay: 1.5 }}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2"
-      >
-        <div className="flex h-12 w-6 justify-center rounded-full border-2 border-white/20 p-1">
-          <motion.div
-            animate={{ y: [0, 12, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-            className="h-2 w-1 rounded-full bg-blue-500"
-          />
-        </div>
-      </motion.div>
     </section>
   );
 };
