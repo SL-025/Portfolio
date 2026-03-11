@@ -1,7 +1,7 @@
 export const resumeData = {
   "basics": {
     "name": "Shubham Limbachiya",
-    "photo": "https://raw.githubusercontent.com/SL-025/Portfolio/main/src/DSC07409(2).JPG",
+    "photo": "https://github.com/SL-025/Portfolio/blob/main/src/DSC07409(2).JPG",
     "title": "AI Developer | Python & ML Enthusiast | NLP | Web Dev | Data Science | Deep Learning | LLMs",
     "summary": "AI and ML developer with experience in building and deploying ML and GenAI applications across Python, NLP, REST APIs and computer vision. Built multiple end-to-end projects introducing an Interpretability Stability Score (ISS) to quantify Grad-CAM robustness under perturbations and production style AI agents on NeuralSeek. Strong in Python, model evaluation, data handling, and communicating results to technical and non-technical stakeholders.",
     "location": "St Louis, Missouri, United States",
