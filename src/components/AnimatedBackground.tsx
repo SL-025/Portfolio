@@ -3,6 +3,7 @@ import * as THREE from 'three';
 
 export const AnimatedBackground = () => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const scrollYRef = useRef(0);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -18,6 +19,7 @@ export const AnimatedBackground = () => {
     
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.domElement.style.display = 'block';
     containerRef.current.appendChild(renderer.domElement);
 
     // Neural Mesh / Particles (Tunnel Effect)
@@ -80,7 +82,6 @@ export const AnimatedBackground = () => {
     const points = new THREE.Points(geometry, material);
     scene.add(points);
 
-    // Add a second layer of larger, blurrier particles for "glow"
     const glowMaterial = new THREE.PointsMaterial({
       size: 0.8,
       vertexColors: true,
@@ -105,7 +106,6 @@ export const AnimatedBackground = () => {
       const ring = new THREE.Mesh(ringGeo, ringMat);
       ringGroup.add(ring);
       
-      // Add "data bits" (cubes) that rotate around the ring
       const bitGeo = new THREE.BoxGeometry(0.3, 0.3, 0.3);
       const bitMat = new THREE.MeshBasicMaterial({ color: 0x00f2ff });
       for (let j = 0; j < 12; j++) {
@@ -120,10 +120,8 @@ export const AnimatedBackground = () => {
       rings.push(ringGroup);
     }
 
-    // Fog for depth
     scene.fog = new THREE.FogExp2(0x050505, 0.002);
 
-    // Cyber Grid Floor
     const gridHelper = new THREE.GridHelper(2000, 80, 0x00f2ff, 0x000000);
     gridHelper.position.y = -50;
     gridHelper.material.transparent = true;
@@ -132,7 +130,6 @@ export const AnimatedBackground = () => {
 
     camera.position.z = 100;
 
-    // Mouse Interaction
     const mouse = { x: 0, y: 0 };
     const targetMouse = { x: 0, y: 0 };
     const handleMouseMove = (event: MouseEvent) => {
@@ -141,7 +138,11 @@ export const AnimatedBackground = () => {
     };
     window.addEventListener('mousemove', handleMouseMove);
 
-    // Animation Loop
+    const handleScroll = () => {
+      scrollYRef.current = window.scrollY;
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
     let animationFrameId: number;
     let lastTime = performance.now();
 
@@ -150,35 +151,27 @@ export const AnimatedBackground = () => {
       const deltaTime = (currentTime - lastTime) / 1000;
       lastTime = currentTime;
       
-      // Direct scroll value
-      const scrollValue = window.scrollY;
+      const scrollValue = scrollYRef.current;
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
       const normalizedScroll = maxScroll > 0 ? (scrollValue / maxScroll) * 100 : 0;
 
-      // Smooth mouse movement
       mouse.x += (targetMouse.x - mouse.x) * 0.05;
       mouse.y += (targetMouse.y - mouse.y) * 0.05;
 
-      // Rotate points
       points.rotation.z += deltaTime * 0.05;
       glowPoints.rotation.z += deltaTime * 0.05;
       
-      // Camera movement based on mouse and scroll
       camera.position.x += (mouse.x * 30 - camera.position.x) * 0.05;
       camera.position.y += (mouse.y * 30 - camera.position.y) * 0.05;
       camera.position.z = 200 - normalizedScroll * 8;
       
-      // Look slightly towards mouse but keep center focus
       camera.lookAt(mouse.x * 20, mouse.y * 20, -1200);
 
-      // Animate rings (moving towards camera)
       rings.forEach((ring, i) => {
-        // Rings move faster when scrolling
         const scrollSpeedBonus = normalizedScroll * 0.1;
         ring.position.z += (deltaTime * 40) + scrollSpeedBonus;
         ring.rotation.z += deltaTime * 0.15 * (i % 2 === 0 ? 1 : -1);
         
-        // Fade in/out based on distance
         const dist = Math.abs(ring.position.z - camera.position.z);
         const opacity = Math.max(0, Math.min(0.3, 1 - dist / 400));
         const mesh = ring.children[0] as THREE.Mesh;
@@ -190,7 +183,6 @@ export const AnimatedBackground = () => {
         }
       });
 
-      // Animate grid
       gridHelper.position.z = (normalizedScroll * 15) % 25;
 
       renderer.render(scene, camera);
@@ -199,7 +191,6 @@ export const AnimatedBackground = () => {
 
     animate();
 
-    // Resize Handler
     const handleResize = () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
@@ -210,6 +201,7 @@ export const AnimatedBackground = () => {
     return () => {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleResize);
       if (containerRef.current) {
         containerRef.current.removeChild(renderer.domElement);
@@ -225,10 +217,7 @@ export const AnimatedBackground = () => {
   return (
     <div 
       ref={containerRef} 
-      className="fixed inset-0 z-0 pointer-events-none bg-[#050505]"
-      style={{ 
-        background: 'radial-gradient(circle at center, #0a0a0a 0%, #000000 100%)'
-      }}
+      className="fixed inset-0 z-0 pointer-events-none"
     />
   );
 };
