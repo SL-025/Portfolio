@@ -138,10 +138,19 @@ export const AnimatedBackground = () => {
     };
     window.addEventListener('mousemove', handleMouseMove);
 
-    const handleScroll = () => {
-      scrollYRef.current = window.scrollY;
+    const handleScroll = (e?: Event) => {
+      let currentScroll = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
+      
+      // If the event target is an element (like a custom scroll container), use its scrollTop
+      if (e && e.target instanceof Element && e.target.scrollTop > 0) {
+        currentScroll = Math.max(currentScroll, e.target.scrollTop);
+      }
+      
+      scrollYRef.current = currentScroll;
     };
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    // Use capture: true to catch scroll events from any scrollable container
+    window.addEventListener('scroll', handleScroll, { passive: true, capture: true });
 
     let animationFrameId: number;
     let lastTime = performance.now();
@@ -152,8 +161,9 @@ export const AnimatedBackground = () => {
       lastTime = currentTime;
       
       const scrollValue = scrollYRef.current;
-      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      const normalizedScroll = maxScroll > 0 ? (scrollValue / maxScroll) * 100 : 0;
+      // Robust maxScroll calculation with a fallback to prevent 0 division
+      const maxScroll = Math.max(document.documentElement.scrollHeight - window.innerHeight, 2000);
+      const normalizedScroll = Math.min(Math.max((scrollValue / maxScroll) * 100, 0), 100);
 
       mouse.x += (targetMouse.x - mouse.x) * 0.05;
       mouse.y += (targetMouse.y - mouse.y) * 0.05;
@@ -201,7 +211,7 @@ export const AnimatedBackground = () => {
     return () => {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('scroll', handleScroll, { capture: true });
       window.removeEventListener('resize', handleResize);
       if (containerRef.current) {
         containerRef.current.removeChild(renderer.domElement);
